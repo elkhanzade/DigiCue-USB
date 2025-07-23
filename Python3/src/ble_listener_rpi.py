@@ -1,9 +1,17 @@
 #!/usr/bin/env python3
 """Minimal BLE listener for Raspberry Pi 3 with BLED112"""
 
-import serial
+import sys
 import time
 from datetime import datetime
+
+# Try to import pyserial
+try:
+    import serial
+except ImportError:
+    print("Error: pyserial not installed")
+    print("Install with: pip install pyserial")
+    sys.exit(1)
 
 # BLED112 on Raspberry Pi 3
 PORT = '/dev/ttyACM0'
@@ -14,7 +22,9 @@ try:
 except Exception as e:
     print(f"Failed to open {PORT}: {e}")
     print("Check if BLED112 is connected to Raspberry Pi")
-    exit(1)
+    print("\nTry running: ls /dev/tty* | grep -E '(ACM|USB)'")
+    print("to find the correct device")
+    sys.exit(1)
 
 # System reset
 print("Sending system reset...")
