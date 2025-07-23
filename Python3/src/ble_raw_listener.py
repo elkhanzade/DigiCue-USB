@@ -2,13 +2,12 @@
 """Minimal BLE listener - dumps raw traffic from BLED112"""
 
 import serial
-import serial.tools.list_ports
 import time
 import sys
+import glob
 from datetime import datetime
 
 # Find BLED112 port
-import glob
 ports = glob.glob('/dev/cu.usbmodem*') + glob.glob('/dev/tty.usbmodem*')
 port = ports[0] if ports else None
 
