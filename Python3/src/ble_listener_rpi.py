@@ -51,7 +51,8 @@ ser.flushInput()
 # Start BLE observation
 print("Starting BLE observation...")
 ser.write(bytes.fromhex('00 01 06 02 01'))
-print("\nListening for raw BLE traffic (Ctrl+C to stop)\n")
+print("\nListening for raw BLE traffic (Ctrl+C to stop)")
+print("Note: Apple devices (FF 4C 00) are hidden from console but saved to capture file\n")
 print("-" * 70)
 
 try:
@@ -62,14 +63,22 @@ try:
             hex_str = ' '.join(f'{b:02X}' for b in data)
             ascii_str = ''.join(chr(b) if 32 <= b < 127 else '.' for b in data)
             
-            # Print to console
-            print(f"[{timestamp}] {hex_str}")
-            print(f"            ASCII: {ascii_str}")
-            print()
+            # Check if this is Apple traffic (FF 4C 00 in manufacturer data)
+            is_apple = 'FF 4C 00' in hex_str
             
-            # Write to capture file if specified
+            # Skip Apple traffic unless capturing to file
+            if not is_apple:
+                # Print to console
+                print(f"[{timestamp}] {hex_str}")
+                print(f"            ASCII: {ascii_str}")
+                print()
+            
+            # Write ALL traffic to capture file if specified (including Apple)
             if capture_file:
-                capture_file.write(f"[{timestamp}] {hex_str}\n")
+                if is_apple:
+                    capture_file.write(f"[{timestamp}] [APPLE] {hex_str}\n")
+                else:
+                    capture_file.write(f"[{timestamp}] {hex_str}\n")
                 capture_file.write(f"            ASCII: {ascii_str}\n")
                 capture_file.write("\n")
                 capture_file.flush()  # Ensure data is written immediately

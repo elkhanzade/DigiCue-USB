@@ -26,6 +26,7 @@ ser.write(bytes.fromhex('00 01 06 02 01'))
 print("\nListening (Ctrl+C to stop)...\n")
 
 try:
+    apple_count = 0
     while True:
         if ser.in_waiting > 0:
             data = ser.read(ser.in_waiting)
@@ -33,11 +34,16 @@ try:
             hex_str = ' '.join(f'{b:02X}' for b in data)
             ascii_str = ''.join(chr(b) if 32 <= b < 127 else '.' for b in data)
             
+            # Skip Apple devices to reduce noise
+            if 'FF 4C 00' in hex_str:
+                apple_count += 1
+                continue
+                
             print(f"[{ts}] {hex_str}")
             print(f"{'':>12} ASCII: {ascii_str}\n")
             
 except KeyboardInterrupt:
-    print("\nStopping...")
+    print(f"\nStopping... (filtered {apple_count} Apple devices)")
     ser.write(bytes.fromhex('00 00 06 04'))
     time.sleep(0.5)
     ser.close()
